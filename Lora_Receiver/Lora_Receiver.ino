@@ -2,8 +2,10 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h> 
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
 
-const int csPin = 22;     
+const int csPin = 4;     
 const int resetPin = 5;    
 const int DI0 = 2;   
 
@@ -16,6 +18,9 @@ String send_jsondata;
 
 void setup() {
   Serial.begin(9600);
+  lcd.init(); // initialize the lcd
+  lcd.backlight();
+  lcd.clear();
   while (!Serial);
 
   Serial.println("LoRa Duplex");
@@ -50,7 +55,15 @@ void onReceive() {
       int Temperature = doc["T"];
       int Humidity = doc["H"];
 
-      if (Addr_To == localAddress) {  
+      if (Addr_To == localAddress) { 
+        lcd.setCursor(0, 0);
+        lcd.print("Temp:");
+        lcd.print(Temperature);
+        lcd.print(" C");
+        lcd.setCursor(0, 1);
+        lcd.print("Hum:");
+        lcd.print(Humidity);
+        lcd.print(" %"); 
         Serial.println("Message for me! Processing...");
         Serial.print("From Address: "); Serial.println(Addr_From);
         Serial.print("Temperature: "); Serial.print(Temperature); Serial.println(" °C");
